@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace RP0
 {
+    /*
     public class MaintenanceGUI : UIBase
     {
         private Vector2 nautListScroll = new Vector2();
@@ -310,5 +311,6 @@ namespace RP0
             }
         }
     }
+    */
 }
 

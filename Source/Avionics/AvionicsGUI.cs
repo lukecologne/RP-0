@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace RP0
 {
+    /*
     public class AvionicsGUI : UIBase
     {
         private double deltaTime = 0d;
@@ -51,5 +52,6 @@ namespace RP0
                 GUILayout.Label("Avionics are sufficient", HighLogic.Skin.label);
         }
     }
+    */
 }
 

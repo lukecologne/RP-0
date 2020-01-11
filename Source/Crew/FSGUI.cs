@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace RP0.Crew
 {
+    /*
     public class FSGUI : UIBase
     {
         private ActiveCourse selectedCourse = null;
@@ -306,4 +307,5 @@ namespace RP0.Crew
             }
         }
     }
+    */
 }

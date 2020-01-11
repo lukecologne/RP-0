@@ -5,6 +5,7 @@ using RP0.Tooling;
 
 namespace RP0
 {
+    /*
     public class ToolingGUI : UIBase
     {
         private struct untooledPart {
@@ -262,5 +263,6 @@ namespace RP0
             }
         }
     }
+    */
 }
 

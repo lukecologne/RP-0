@@ -126,7 +126,7 @@ namespace RP0.Crew
         protected HashSet<string> partSynsHandled = new HashSet<string>();
         protected TrainingDatabase trainingDatabase = new TrainingDatabase();
 
-        public FSGUI fsGUI;
+        //public FSGUI fsGUI;
 
         #region Instance
 
@@ -169,7 +169,7 @@ namespace RP0.Crew
 
         public void Start()
         {
-            fsGUI = new FSGUI();
+            //fsGUI = new FSGUI();
         }
 
         public override void OnLoad(ConfigNode node)

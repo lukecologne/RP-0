@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<KSPBundleDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" UrlName="rp1gui" Name="rp1gui" CreatedTime="-8586228493762678862">
+  <Author />
+  <Info />
+  <Assets>
+    <Asset Name="AstronautListRowPrefab" Path="Assets/Prefabs/AstronautListRowPrefab.prefab" Type="GameObject" Url="Prefabs/AstronautListRowPrefab" AutoLoad="false" />
+    <Asset Name="CourseSelectButtonPrefab" Path="Assets/Prefabs/CourseSelectButtonPrefab.prefab" Type="GameObject" Url="Prefabs/CourseSelectButtonPrefab" AutoLoad="false" />
+    <Asset Name="ExistingToolingButtonPrefab" Path="Assets/Prefabs/ExistingToolingButtonPrefab.prefab" Type="GameObject" Url="Prefabs/ExistingToolingButtonPrefab" AutoLoad="false" />
+    <Asset Name="RP1GUITopPanel" Path="Assets/Prefabs/RP1GUITopPanel.prefab" Type="GameObject" Url="Prefabs/RP1GUITopPanel" AutoLoad="false" />
+    <Asset Name="ScrollListItem" Path="Assets/Prefabs/ScrollListItem.prefab" Type="GameObject" Url="Prefabs/ScrollListItem" AutoLoad="false" />
+  </Assets>
+  <Dependencies />
+</KSPBundleDefinition>

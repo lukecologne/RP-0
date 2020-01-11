@@ -45,6 +45,7 @@
     <Compile Include="Crew\ActiveCourse.cs" />
     <Compile Include="Crew\CourseTemplate.cs" />
     <Compile Include="Crew\CrewHandlerSettings.cs" />
+    <Compile Include="UI\GUICrewMember.cs" />
     <Compile Include="Crew\TrainingDatabase.cs" />
     <Compile Include="Crew\FSGUI.cs" />
     <Compile Include="EntryCostStorage.cs" />
@@ -103,6 +104,8 @@
     <Compile Include="Tooling\ToolingScenario.cs" />
     <Compile Include="Tooling\ModuleToolingPTank.cs" />
     <Compile Include="Utilities\CSV\CsvWriter.cs" />
+    <Compile Include="UI\GUICourseTemplate.cs" />
+    <Compile Include="UI\RP1Loader.cs" />
     <Compile Include="Utilities\SphericalTankUtilities.cs" />
     <Compile Include="Utilities\KACWrapper.cs" />
     <Compile Include="Utilities\KSPUtils.cs" />
@@ -111,7 +114,7 @@
     <Compile Include="Maintenance\MaintenanceGUI.cs" />
     <Compile Include="UI\TopWindow.cs" />
     <Compile Include="UI\UIBase.cs" />
-    <Compile Include="UI\UIHolder.cs" />
+    <Compile Include="UI\RP1ToolbarHolder.cs" />
     <Compile Include="Tooling\ToolingGUI.cs" />
     <Compile Include="Avionics\AvionicsGUI.cs" />
   </ItemGroup>
@@ -127,6 +130,9 @@
     </Reference>
     <Reference Include="RealFuels">
       <Private>False</Private>
+    </Reference>
+    <Reference Include="RP0.Unity">
+      <HintPath>RP0.Unity\obj\Release\RP0.Unity.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Private>False</Private>
@@ -162,7 +168,8 @@
   <PropertyGroup>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>del "System.Core.dll"</PostBuildEvent>
+    <PostBuildEvent>del "System.Core.dll"
+if $(ConfigurationName) == Debug "C:\Users\Lukas\Desktop\pdb2mdb\pdb2mdb.exe" "$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

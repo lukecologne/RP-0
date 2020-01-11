@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CC_RP0", "CC_RP0\CC_RP0.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClearInputLocks", "ClearInputLocks\ClearInputLocks.csproj", "{25CFD266-ED2F-47CD-AF33-4365C8D381E5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RP0.Unity", "RP0.Unity\RP0.Unity.csproj", "{8698D027-1117-4794-8499-B3298CD4E03F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

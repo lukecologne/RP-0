@@ -4,6 +4,7 @@ using KSP.UI.Screens;
 
 namespace RP0
 {
+    /*
     public class UIBase
     {
         protected GUIStyle rightLabel, boldLabel, boldRightLabel, pressedButton;
@@ -54,5 +55,5 @@ namespace RP0
             return GUILayout.Button(text, selected ? pressedButton : HighLogic.Skin.button, options);
         }
     }
+*/
 }
-
