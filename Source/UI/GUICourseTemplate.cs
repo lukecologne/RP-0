@@ -44,16 +44,6 @@ namespace RP0.UI
             get => courseTemplate.seatMin;
         }
 
-        public static bool operator == (GUICourseTemplate template1, GUICourseTemplate template2)
-        {
-            return template1.courseTemplate == template2.courseTemplate;
-        }
-
-        public static bool operator != (GUICourseTemplate template1, GUICourseTemplate template2)
-        {
-            return template1.courseTemplate != template2.courseTemplate;
-        }
-
         public GUICourseTemplate(CourseTemplate pTemplate, TopWindow pTopWindow)
         {
             courseTemplate = pTemplate;
