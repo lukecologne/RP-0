@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RP0", "RP0.csproj", "{997854F8-4EFB-4A78-87BC-F7C8CEA64669}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8698D027-1117-4794-8499-B3298CD4E03F} = {8698D027-1117-4794-8499-B3298CD4E03F}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RP0KCTBinder", "RP0KCTBinder.csproj", "{13CD17E5-381C-4782-B5F0-3DA46513EEB8}"
 EndProject

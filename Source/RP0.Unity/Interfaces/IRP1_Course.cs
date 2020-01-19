@@ -8,7 +8,9 @@ namespace RP0.Unity.Interfaces
 {
     public interface IRP1_Course
     {
-        string name { get; }
+
+
+        string courseName { get; }
 
         string description { get; }
 
@@ -21,5 +23,7 @@ namespace RP0.Unity.Interfaces
         //IList<IRP1_Astronaut> getStudents { get; }
 
         //void StartCourse();
+
+        void prepareCourse();
     }
 }

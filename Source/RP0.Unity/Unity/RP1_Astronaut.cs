@@ -12,6 +12,7 @@ namespace RP0.Unity.Unity
     {
         #region GUIFields
 
+#pragma warning disable 649
         [SerializeField]
         private Text m_AstronautType;
         [SerializeField]
@@ -28,6 +29,7 @@ namespace RP0.Unity.Unity
         private Button m_CourseLeaveButton;
         [SerializeField]
         private Text m_isAddedCheckmark;
+#pragma warning restore 649
 
         private RP1_MainPanel mainPanel;
 
@@ -35,7 +37,7 @@ namespace RP0.Unity.Unity
 
         private IRP1_Astronaut AstronautInterface;
 
-        private IRP1_Course currentCourse;
+        //private IRP1_Course currentCourse;
 
         private bool isInCourseStartList;
 
@@ -43,11 +45,21 @@ namespace RP0.Unity.Unity
         public bool isSelected
         {
             get => _isSelected;
+            set
+            {
+                _isSelected = value;
+                UpdateTextFields();
+            }
         }
 
         private void Awake()
         {
 
+        }
+
+        void Start()
+        {
+            InvokeRepeating(nameof(UpdateTextFields), 0, 0.1f);
         }
 
         public void setModule(IRP1_Astronaut astronaut, bool pisInCourseStartList, RP1_MainPanel pMainPanel)
@@ -62,9 +74,6 @@ namespace RP0.Unity.Unity
 
             isInCourseStartList = pisInCourseStartList;
 
-            if (isInCourseStartList && astronaut.isInCourse)
-                m_AstronautNameButton.interactable = false;
-
             UpdateTextFields();
         }
 
@@ -72,14 +81,19 @@ namespace RP0.Unity.Unity
         {
             if (m_AstronautNameText != null && m_isAddedCheckmark != null && !isSelected)
             {
-                m_AstronautNameText.text = AstronautInterface.name;
+                m_AstronautNameText.text = AstronautInterface.crewMemberName;
                 m_isAddedCheckmark.enabled = false;
             }
             else if (m_AstronautNameText != null && m_isAddedCheckmark != null && isSelected)
             {
-                m_AstronautNameText.text = AstronautInterface.name;
+                m_AstronautNameText.text = AstronautInterface.crewMemberName;
                 m_isAddedCheckmark.enabled = true;
             }
+
+            if (!isInCourseStartList || (!AstronautInterface.isInCourse && (AstronautInterface.meetsCourseReqs || isSelected)))
+                m_AstronautNameButton.interactable = true;
+            else
+                m_AstronautNameButton.interactable = false;
 
             if (m_AstronautType != null)
                 m_AstronautType.text = AstronautInterface.type.Substring(0,1) + "\n" + AstronautInterface.level;
@@ -102,15 +116,6 @@ namespace RP0.Unity.Unity
                 m_CourseLeaveButton.interactable = true;
         }
 
-        public void setSelected(bool selected)
-        {
-            if(currentCourse == null)
-                return;
-
-            _isSelected = selected;
-            UpdateTextFields();
-        }
-
         #region Listeners
 
         public void NameButtonListener()
@@ -119,16 +124,16 @@ namespace RP0.Unity.Unity
                 mainPanel?.openAstronautDetailPanel(AstronautInterface);
             else if(isInCourseStartList && !isSelected)
             {
-                _isSelected = true;
+                isSelected = true;
                 m_isAddedCheckmark.enabled = true;
                 AstronautInterface?.addSelfToNewCourse();
                 mainPanel?.updateCourseStartPanel();
             }
             else if (isInCourseStartList && isSelected)
             {
-                _isSelected = false;
+                isSelected = false;
                 m_isAddedCheckmark.enabled = false;
-                AstronautInterface?.addSelfToNewCourse();
+                AstronautInterface?.removeSelfFromNewCourse();
                 mainPanel?.updateCourseStartPanel();
             }
         }

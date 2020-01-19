@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using RP0.Unity.Interfaces;
 using UnityEngine;
@@ -11,6 +12,9 @@ namespace RP0.Unity.Unity
     [RequireComponent(typeof(RectTransform))]
     public class RP1_Maintenance : MonoBehaviour
     {
+        #region GUI Fields
+
+        #pragma warning disable 649
         //Submenus
         [SerializeField]
         private GameObject m_MainMenu;
@@ -37,9 +41,7 @@ namespace RP0.Unity.Unity
         [SerializeField]
         private Text m_LaunchPadTotalCost;
         [SerializeField]
-        private Text m_LaunchPadLevels;
-        [SerializeField]
-        private Text m_LaunchPadLevelsCost;
+        private Text m_LaunchPadLevelsPrefab;
         [SerializeField]
         private Text m_RunwayTotalCost;
         [SerializeField]
@@ -59,9 +61,7 @@ namespace RP0.Unity.Unity
 
         //Maintenance Integration Menu
         [SerializeField]
-        private Text m_IntegrationSites;
-        [SerializeField]
-        private Text m_IntegrationRates;
+        private Text m_IntegrationSitesPrefab;
         [SerializeField]
         private Text m_TotalIntegrationCostCost;
 
@@ -76,6 +76,10 @@ namespace RP0.Unity.Unity
         private Text m_AstronautTrainingCost;
         [SerializeField]
         private Text m_AstronautTotalCostCost;
+#pragma warning restore 649
+
+        #endregion
+
 
         private enum per { DAY, MONTH, YEAR };
         private per displayPer = per.YEAR;
@@ -99,28 +103,53 @@ namespace RP0.Unity.Unity
             }
         }
 
+        public struct padLevelsAndCosts
+        {
+            public int level;
+            public int count;
+            public double cost;
+
+            public padLevelsAndCosts(int pLevel, int pCount, double pCost)
+            {
+                level = pLevel;
+                count = pCount;
+                cost = pCost;
+            }
+        }
+
+#pragma warning disable 649
         [SerializeField]
         private RP1_MainPanel MainPanel;
 
         [SerializeField]
         private Text HeaderText;
+#pragma warning restore 649
+
+        private List<Text> LaunchPadLevels = new List<Text>();
+        //We can use an Array here because the count is already known
+        private Text[] IntegrationsSites;
 
         private void Awake()
         {
 
         }
 
-        public void setWindow()
+        void Start()
         {
-
+            InvokeRepeating(nameof(updateAllMaintenanceWindows), 0, 1f);
         }
 
-        public void updateAllMaintenanceWindows()
+        public void setWindow()
+        {
+            updateAllMaintenanceWindows(true);
+        }
+
+        public void updateAllMaintenanceWindows(bool force = false)
         {
             updateMaintenanceMainMenu();
-            updateMaintenanceFacilityMainMenu();
-            updateIntegrationMenu();
-            updateAstronautMenu();
+            updateMaintenanceFacilityMainMenu(force);
+            updateIntegrationMenu(force);
+            updateAstronautMenu(force);
         }
 
         public void updateMaintenanceMainMenu()
@@ -144,35 +173,43 @@ namespace RP0.Unity.Unity
                 m_MaintenanceMainTotal.text = (MainPanel.MainPanelInterface.totalUpkeep * perFactor).ToString(perFormat);
         }
 
-        public void updateMaintenanceFacilityMainMenu()
+        public void updateMaintenanceFacilityMainMenu(bool force)
         {
+            //Updating the prefabs and then Rebuilding the Layout is probably very inefficient, but shouldn't matter too much because it's only called every second
+            if(!m_FacilitiesMenu.activeSelf && !force)
+                return;
+
             if (m_LaunchPadTotalCost != null)
                 m_LaunchPadTotalCost.text = (MainPanel.MainPanelInterface.LaunchPadTotalCost * perFactor).ToString(perFormat);
 
-            //if (m_LaunchPadLevels != null)
-            //{
-            //    var sb = new StringBuilder();
-            //
-            //    for (int i = 0; i < MainPanel.MainPanelInterface.LaunchPadLevels.Length; i++)
-            //    {
-            //        sb.AppendLine(MainPanel.MainPanelInterface.LaunchPadLevels[i]);
-            //    }
-            //
-            //    m_LaunchPadLevels.text = sb.ToString();
-            //}
-                
-                
 
-            //if (m_LaunchPadLevelsCost != null)
-            //{
-            //    string toPrint = "";
-            //    for (int i = 0; i < MainPanel.MainPanelInterface.LauchPadLevelsCost.Length; i++)
-            //        toPrint.Concat((MainPanel.MainPanelInterface.LauchPadLevelsCost[i] * perFactor).ToString(perFormat));
-            //
-            //    Debug.Log("[RP-1]" + toPrint);
-            //    m_LaunchPadLevelsCost.text = toPrint;
-            //}
-                
+            if (LaunchPadLevels != null && LaunchPadLevels.Count > 0)
+            {
+                foreach(var padLevel in LaunchPadLevels)
+                {
+                    Destroy(padLevel.gameObject);
+                }
+
+                LaunchPadLevels.Clear();
+            }
+
+            padLevelsAndCosts[] padLevelsAndCosts = MainPanel.MainPanelInterface.LaunchPadLevelsAndCosts;
+
+            int counter = 0;
+            foreach (var padLevel in padLevelsAndCosts)
+            {
+                if(padLevel.count == 0)
+                    continue;
+
+                Text toAdd = Instantiate(m_LaunchPadLevelsPrefab, m_FacilitiesMenu.transform);
+                toAdd.gameObject.transform.SetSiblingIndex(counter + 1);
+                toAdd.text = $"\tLevel {padLevel.level} × {padLevel.count}";
+                toAdd.gameObject.transform.GetChild(0).GetComponent<Text>().text = (padLevel.cost * perFactor).ToString(perFormat);
+                LaunchPadLevels.Add(toAdd);
+
+                counter++;
+            }
+
             if (m_RunwayTotalCost != null)
                 m_RunwayTotalCost.text = (MainPanel.MainPanelInterface.RunwayTotalCost * perFactor).ToString(perFormat);
             if (m_VABTotalCost != null)
@@ -190,40 +227,43 @@ namespace RP0.Unity.Unity
             if (m_TotalFacilityCostCost != null)
                 m_TotalFacilityCostCost.text = (MainPanel.MainPanelInterface.TotalFacilityCostCost * perFactor).ToString(perFormat);
 
-            //LayoutRebuilder.ForceRebuildLayoutImmediate(m_LaunchPadLevels.gameObject.transform.parent
-            //    .GetComponent<RectTransform>());
-            //
-            //LayoutRebuilder.ForceRebuildLayoutImmediate(m_LaunchPadLevelsCost.gameObject.transform.parent
-            //    .GetComponent<RectTransform>());
+            LayoutRebuilder.ForceRebuildLayoutImmediate(gameObject.GetComponent<RectTransform>());
         }
 
-        public void updateIntegrationMenu()
+        public void updateIntegrationMenu(bool force)
         {
-            //if (m_IntegrationSites != null)
-            //    m_IntegrationSites.text = MainPanel.MainPanelInterface.integrationSites[0];
-            //
-            //if (m_IntegrationRates != null)
-            //{
-            //    string toPrint = "";
-            //    for (int i = 0; i < MainPanel.MainPanelInterface.integrationRates.Length; i++)
-            //        toPrint.Concat((MainPanel.MainPanelInterface.integrationRates[i] * perFactor).ToString(perFormat));
-            //
-            //    Debug.Log("[RP-1]" + toPrint);
-            //    m_IntegrationRates.text = toPrint;
-            //}
+            //Updating the prefabs and then Rebuilding the Layout is probably very inefficient, but shouldn't matter too much because it's only called every second
+            if(!m_IntegrationMenu.activeSelf && !force)
+                return;
+
+            if (IntegrationsSites != null && IntegrationsSites.Length != 0)
+            {
+                foreach (var site in IntegrationsSites)
+                {
+                    Destroy(site.gameObject);
+                }
+            }
+            
+            IntegrationsSites = new Text[MainPanel.MainPanelInterface.integrationSites.Length];
+            for (int i = 0; i<IntegrationsSites.Length; i++)
+            {
+                IntegrationsSites[i] = Instantiate(m_IntegrationSitesPrefab, m_IntegrationMenu.gameObject.transform);
+                IntegrationsSites[i].gameObject.transform.SetSiblingIndex(i);
+                IntegrationsSites[i].text = MainPanel.MainPanelInterface.integrationSites[i];
+                IntegrationsSites[i].gameObject.transform.GetChild(0).GetComponent<Text>().text = (MainPanel.MainPanelInterface.integrationRates[i] * perFactor).ToString(perFormat);
+            }
 
             if (m_TotalIntegrationCostCost != null)
                 m_TotalIntegrationCostCost.text = (MainPanel.MainPanelInterface.integrationUpkeep * perFactor).ToString(perFormat);
 
-            //LayoutRebuilder.ForceRebuildLayoutImmediate(m_IntegrationSites.gameObject.transform.parent
-            //    .GetComponent<RectTransform>());
-            //
-            //LayoutRebuilder.ForceRebuildLayoutImmediate(m_IntegrationRates.gameObject.transform.parent
-            //    .GetComponent<RectTransform>());
+            LayoutRebuilder.ForceRebuildLayoutImmediate(gameObject.GetComponent<RectTransform>());
         }
 
-        public void updateAstronautMenu()
+        public void updateAstronautMenu(bool force)
         {
+            if(!m_AstronautMenu.activeSelf && !force)
+                return;
+
             if (m_CorpsSize != null)
                 m_CorpsSize.text = "Corps: " + MainPanel.MainPanelInterface.CorpsSize + " Astronauts";
             if (m_AstronautBaseCost != null)
@@ -282,6 +322,7 @@ namespace RP0.Unity.Unity
         public void OnFacilitiesButton()
         {
             m_MainMenu?.SetActive(false);
+            updateAllMaintenanceWindows(true);
             m_FacilitiesMenu?.SetActive(true);
             if (HeaderText != null)
                 HeaderText.text = "Facility costs (per ";
@@ -292,6 +333,7 @@ namespace RP0.Unity.Unity
         public void OnIntegrationButton()
         {
             m_MainMenu?.SetActive(false);
+            updateAllMaintenanceWindows(true);
             m_IntegrationMenu?.SetActive(true);
             if (HeaderText != null)
                 HeaderText.text = "Integration Team costs (per ";
@@ -302,6 +344,7 @@ namespace RP0.Unity.Unity
         public void OnAstronautsButton()
         {
             m_MainMenu?.SetActive(false);
+            updateAllMaintenanceWindows(true);
             m_AstronautMenu?.SetActive(true);
             if (HeaderText != null)
                 HeaderText.text = "Astronaut costs (per ";

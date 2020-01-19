@@ -131,8 +131,10 @@
     <Reference Include="RealFuels">
       <Private>False</Private>
     </Reference>
-    <Reference Include="RP0.Unity">
-      <HintPath>RP0.Unity\obj\Release\RP0.Unity.dll</HintPath>
+    <Reference Include="RP0.Unity, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\GameData\RP-0\Plugins\RP0.Unity.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System">
       <Private>False</Private>

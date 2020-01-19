@@ -10,10 +10,13 @@ namespace RP0.Unity.Unity
     [RequireComponent(typeof(RectTransform))]
     class RP1_Course : MonoBehaviour
     {
+#pragma warning disable 649
         [SerializeField]
         private Button m_CourseSelectButton;
         [SerializeField]
         private Text m_CourseSelectButtonText;
+#pragma warning restore 649
+
 
         private RP1_MainPanel mainPanel;
 
@@ -22,8 +25,6 @@ namespace RP0.Unity.Unity
         {
             get => _courseInterface;
         }
-
-        //private List<IRP1_Astronaut> students;
 
         public void setModule(IRP1_Course courseInterface, RP1_MainPanel pMainPanel)
         {
@@ -35,13 +36,15 @@ namespace RP0.Unity.Unity
             mainPanel = pMainPanel;
 
             if(m_CourseSelectButtonText != null) 
-                m_CourseSelectButtonText.text = _courseInterface.name;
+                m_CourseSelectButtonText.text = _courseInterface.courseName;
 
             //students = new List<IRP1_Astronaut>(courseInterface.getStudents);
         }
 
         public void onCourseSelectButtonPressed()
         {
+            _courseInterface.prepareCourse();
+            mainPanel.updateAllNauts(mainPanel.courseStartListAstronauts);
             mainPanel?.openCourseStartPanel(_courseInterface);
         }
 

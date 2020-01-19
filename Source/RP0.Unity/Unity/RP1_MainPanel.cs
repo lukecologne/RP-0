@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using RP0.Unity.Interfaces;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -17,6 +18,7 @@ namespace RP0.Unity.Unity
         [SerializeField] 
         private Text m_version = null;
 
+#pragma warning disable 649
         //Tab Toggles
         [SerializeField]
         internal Toggle m_MaintenanceToggle;
@@ -88,8 +90,26 @@ namespace RP0.Unity.Unity
         [SerializeField]
         private GameObject m_ToolingMainMenu;
         [SerializeField]
+        private Text m_ToolingMainMenuHeader;
+        [SerializeField]
         private GameObject m_ToolingTypesMenu;
-
+        [SerializeField]
+        private Text m_ExistingToolingTypeNameText;
+        [SerializeField]
+        private GameObject m_UntooledPartsSubwindow;
+        [SerializeField]
+        private GameObject m_ToolingListRowPrefab;
+        [SerializeField]
+        private Button m_ExistingToolingButtonPrefab;
+        [SerializeField]
+        private GameObject m_ExistingToolingRowPrefab;
+        [SerializeField]
+        private GameObject m_ExistingToolingSizeRowPrefab;
+        [SerializeField]
+        private Text m_TooledTotalVesselCost;
+        [SerializeField]
+        private Transform m_ToolingListScrollViewContent;
+#pragma warning restore 649
         #endregion
 
         #region General Elements/Fields
@@ -97,8 +117,9 @@ namespace RP0.Unity.Unity
         private Vector2 mouseStart;
         private Vector2 windowStart;
         private RectTransform rect;
-        private Canvas windowCanvas;
+        //private Canvas windowCanvas;
 
+#pragma warning disable 649
         [SerializeField]
         private GameObject ToolingMenu;
         [SerializeField]
@@ -107,6 +128,7 @@ namespace RP0.Unity.Unity
         private GameObject CoursesMainMenu;
         [SerializeField]
         private GameObject AstronautsMenu;
+#pragma warning restore 649
 
         private bool dragging;
 
@@ -121,14 +143,15 @@ namespace RP0.Unity.Unity
 
         public enum Tabs
         {
+            None,
             Maintenance,
             Tooling,
             Astronauts,
             Courses,
             Avionics
         }
-
-        private Tabs currentTab;
+        
+        private Tabs currentTab = Tabs.None;
 
         #endregion
 
@@ -141,19 +164,26 @@ namespace RP0.Unity.Unity
 
         #endregion
 
-        private Dictionary<RP1_Astronaut, RP1_Course> activeMap = new Dictionary<RP1_Astronaut, RP1_Course>();
-
         #region Courses Fields
 
         private List<RP1_Course> courses = new List<RP1_Course>();
 
         public List<RP1_Astronaut> courseStartListAstronauts = new List<RP1_Astronaut>();
 
-        private RP1_Course activeCourse;
-
-        private List<RP1_Astronaut> addedAstronauts;
+        private IRP1_Course activeCourse;
 
         #endregion
+
+        #region Tooling Fields
+
+        List<RP1_ToolingListItem> untooledPartsList = new List<RP1_ToolingListItem>();
+
+        List<GameObject> ExistingToolingRows = new List<GameObject>();
+
+        private string selectedExistingToolingType = null;
+
+        #endregion
+
 
 
 
@@ -168,7 +198,8 @@ namespace RP0.Unity.Unity
 
         private void Start()
         {
-            
+            InvokeRepeating(nameof(updateCourseStartPanel),0,0.1f);
+            InvokeRepeating(nameof(updateAstronautDetailPanel),0,0.1f);
         }
 
         public void Open()
@@ -229,6 +260,8 @@ namespace RP0.Unity.Unity
             CreateNauts(window.getAstronauts, m_AstronautScrollViewportContent, false, astronauts);
 
             CreateCourseList(window.getCourseButtons);
+            
+            updateToolingMainMenu(window.getUntooledParts);
 
             updateAvionicsMenu(0f, 0f, false);
 
@@ -295,7 +328,10 @@ namespace RP0.Unity.Unity
 
         public void updateAllNauts(List<RP1_Astronaut> toUpdate)
         {
-            foreach (var naut in toUpdate)
+            if(toUpdate == null)
+                return;
+        
+            foreach (RP1_Astronaut naut in toUpdate)
             {
                 naut.UpdateTextFields();
             }
@@ -311,14 +347,17 @@ namespace RP0.Unity.Unity
         public void openAstronautDetailPanel(IRP1_Astronaut switchTo)
         {
             selectedAstronaut = switchTo;
-            m_AstronautMainMenu.SetActive(false);
             updateAstronautDetailPanel();
+            m_AstronautMainMenu.SetActive(false);
             m_AstronautDetailMenu.SetActive(true);
         }
 
         public void updateAstronautDetailPanel()
         {
-            m_AstronautName.text = selectedAstronaut.name;
+            if(!m_AstronautDetailMenu.activeSelf)
+                return;
+
+            m_AstronautName.text = selectedAstronaut.crewMemberName;
             m_AstronautTypeLevel.text = selectedAstronaut.type + "  Level " + selectedAstronaut.level;
             m_AstronautRetiresText.text = "Retires NET: " + selectedAstronaut.retireTime;
             if (selectedAstronaut.isInCourse)
@@ -378,8 +417,9 @@ namespace RP0.Unity.Unity
 
         public void openCourseStartPanel(IRP1_Course switchTo)
         {
-            CreateNauts(mainPanelInterface.getAstronauts, m_courseStartScrollViewContent, true, courseStartListAstronauts);
-            addedAstronauts = new List<RP1_Astronaut>();
+            activeCourse = switchTo;
+            if(courseStartListAstronauts.Count == 0)
+                CreateNauts(mainPanelInterface.getAstronauts, m_courseStartScrollViewContent, true, courseStartListAstronauts);
             m_courseListMenu.SetActive(false);
             m_courseStartMenu.SetActive(true);
             updateCourseStartPanel();
@@ -387,44 +427,131 @@ namespace RP0.Unity.Unity
 
         public void updateCourseStartPanel()
         {
-            m_courseStartTitle.text = activeCourse.name;
+            if(activeCourse == null)
+                return;
+
+            m_courseStartTitle.text = activeCourse.courseName;
             m_courseDurationAndFinish.text = "Will take " + mainPanelInterface.newActiveCourseDuration + " and finish on " +
                                              mainPanelInterface.newActiveCourseEndTime;
-            m_CourseDescriptionAndInfo.text = (!String.IsNullOrEmpty(activeCourse.courseInterface.description)
-                                                  ? activeCourse.courseInterface.description + "\n"
+            m_CourseDescriptionAndInfo.text = (!String.IsNullOrEmpty(activeCourse.description)
+                                                  ? activeCourse.description + "\n"
                                                   : "") +
-                                              (activeCourse.courseInterface.isTemporary
+                                              (activeCourse.isTemporary
                                                   ? "Tech for this part is still being researched"
                                                   : "") + "\n" +
-                                              (activeCourse.courseInterface.seatMax > 0
-                                                  ? $"{activeCourse.courseInterface.seatMax - addedAstronauts.Count}  remaining seat(s)."
-                                                  : "") + (activeCourse.courseInterface.seatMin > addedAstronauts.Count
-                                                  ? $" {activeCourse.courseInterface.seatMin - addedAstronauts.Count} more student(s) required." : "");
+                                              (activeCourse.seatMax > 0
+                                                  ? $"{activeCourse.seatMax - mainPanelInterface.addedCrewCount}  remaining seat(s)."
+                                                  : "") + (activeCourse.seatMin > mainPanelInterface.addedCrewCount
+                                                  ? $" {activeCourse.seatMin - mainPanelInterface.addedCrewCount} more student(s) required." : "");
         }
-
-        //public void addAstronautToNewCourse(RP1_Astronaut nautToAdd)
-        //{
-        //    addedAstronauts.Add(nautToAdd);
-        //    updateCourseStartPanel();
-        //}
-        //
-        //public void removeAstronautFromNewCourse(RP1_Astronaut nautToRemove)
-        //{
-        //    addedAstronauts.Remove(nautToRemove);
-        //    updateCourseStartPanel();
-        //}
 
         public void onStartNewCourse()
         {
             mainPanelInterface.startNewCourse();
 
-            foreach (var naut in addedAstronauts)
+            foreach (RP1_Astronaut naut in courseStartListAstronauts)
             {
-                naut.setSelected(false);
+                naut.isSelected = false;
                 naut.UpdateTextFields();
             }
-            //updateAllNauts(courseStartListAstronauts);
-            addedAstronauts.Clear();
+
+            activeCourse.prepareCourse();
+        }
+
+        #endregion
+
+        #region Tooling Methods
+
+        public void updateToolingMainMenu(IList<IRP1_Tooling> pUntooledPartsList)
+        {
+            m_TooledTotalVesselCost.text = $"Total vessel cost if all parts are tooled: {mainPanelInterface.allTooledCost:N0}";
+
+            if (ExistingToolingRows.Count > 0)
+            {
+                foreach (var obj in ExistingToolingRows)
+                {
+                    Destroy(obj);
+                }
+            }
+
+            if (mainPanelInterface.getExistingToolingList.Count > 0)
+            {
+                m_ToolingMainMenuHeader.gameObject.SetActive(true);
+
+                int counter = 0;
+                GameObject tempRow = Instantiate(m_ExistingToolingRowPrefab, m_ToolingMainMenu.transform);
+                tempRow.transform.SetSiblingIndex(1);
+                ExistingToolingRows.Add(tempRow);
+                foreach (var type in mainPanelInterface.getExistingToolingList)
+                {
+                    if (counter % 4 == 0 && counter != 0)
+                    {
+                        tempRow = Instantiate(m_ExistingToolingRowPrefab, m_ToolingMainMenu.transform);
+                        tempRow.transform.SetSiblingIndex((counter / 4) + 1);
+                        ExistingToolingRows.Add(tempRow);
+                    }
+
+                    Button toAdd = Instantiate(m_ExistingToolingButtonPrefab, tempRow.transform);
+                    toAdd.transform.SetSiblingIndex(counter % 4);
+                    toAdd.GetComponent<RP1_ExistingToolingButton>().setWindow(this, type);
+
+                    counter++;
+                }
+            }
+            else
+            {
+                m_ToolingMainMenuHeader.gameObject.SetActive(false);
+            }
+
+            foreach (RP1_ToolingListItem VARIABLE in untooledPartsList.ToArray()) //.ToArray to prevent the list from being edited while iterating 
+            {
+                untooledPartsList.Remove(VARIABLE);
+                Destroy(VARIABLE.gameObject);
+            }
+
+            foreach (IRP1_Tooling untooledPart in pUntooledPartsList.ToArray())
+            {
+                if(untooledPart == null)
+                    continue;
+
+                createToolingRowItem(untooledPart);
+            }
+        }
+
+        public void onExistingToolingSelected(string toSet)
+        {
+            selectedExistingToolingType = toSet;
+            updateToolingTypesMenu();
+
+            m_ToolingMainMenu.SetActive(false);
+            m_ToolingTypesMenu.SetActive(true);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(ToolingMenu.GetComponent<RectTransform>());
+        }
+
+        public void updateToolingTypesMenu()
+        {
+            m_ExistingToolingTypeNameText.text = $"Toolings for type {selectedExistingToolingType}";
+        }
+
+        public void createToolingRowItem(IRP1_Tooling module)
+        {
+            GameObject mod = Instantiate(m_ToolingListRowPrefab);
+
+            if (mod == null)
+                return;
+
+            mod.transform.SetParent(m_ToolingListScrollViewContent, false);
+
+            RP1_ToolingListItem bMod = mod.GetComponent<RP1_ToolingListItem>();
+
+            if (bMod == null)
+                return;
+
+            bMod.setModule(module);
+
+            bMod.gameObject.SetActive(true);
+
+            untooledPartsList.Add(bMod);
         }
 
         #endregion
@@ -433,6 +560,9 @@ namespace RP0.Unity.Unity
 
         public void updateAvionicsMenu(float maxMass, float vesselMass, bool isControlLocked)
         {
+            if(!AvionicsMainMenu.activeSelf)
+                return;
+
             if (m_AvionicsIsSufficientText != null && m_AvionicsSupportsMass != null && m_AvionicsVesselMass != null)
             {
                 m_AvionicsSupportsMass.text = $"{maxMass:N3}t";
@@ -444,12 +574,12 @@ namespace RP0.Unity.Unity
             }
         }
 
+        #endregion
+
         public void updateMaintenanceWindow()
         {
             maintenance.updateAllMaintenanceWindows();
         }
-
-        #endregion
 
         #region DragHandling
 
@@ -470,25 +600,7 @@ namespace RP0.Unity.Unity
                 return;
 
             rect.anchoredPosition = windowStart + (eventData.position - mouseStart);
-
-            //rect.anchoredPosition = clamp(rect, new RectOffset(100, 100, 200, 200));
         }
-
-        /*private Vector3 clamp(RectTransform r, RectOffset offset)
-        {
-            Vector3 pos = new Vector3();
-
-            float f = 1;
-
-            if (mainPanelInterface != null)
-                f = mainPanelInterface.IgnoreScale ? 1 * mainPanelInterface.Scale : mainPanelInterface.MasterScale * mainPanelInterface.Scale;
-
-            pos.x = Mathf.Clamp(r.anchoredPosition.x, -1 * (f * r.sizeDelta.x - offset.left), Screen.width - offset.right);
-            pos.y = Mathf.Clamp(r.anchoredPosition.y, offset.bottom - Screen.height, f * r.sizeDelta.y - offset.top);
-            pos.z = 1;
-
-            return pos;
-        }*/ //Not needed?
 
         public void OnEndDrag(PointerEventData eventData)
         {
@@ -496,8 +608,6 @@ namespace RP0.Unity.Unity
 
             if (rect == null)
                 return;
-
-            //contentFitter.enabled = true;
 
             mainPanelInterface.SetWindowPosition(new Rect(rect.anchoredPosition.x, rect.anchoredPosition.y, rect.sizeDelta.x, rect.sizeDelta.y));
         }
@@ -538,9 +648,25 @@ namespace RP0.Unity.Unity
 
             if (isOn)
             {
-                ToolingMenu.SetActive(true);
+                switch (mainPanelInterface.currentScene)
+                {
+                    case 1:
+                        m_UntooledPartsSubwindow.SetActive(false);
+                        break;
+                    case 0:
+                        m_UntooledPartsSubwindow.SetActive(true);
+                        break;
+                }
+
+                if(m_ToolingTypesMenu.activeSelf)
+                    m_ToolingTypesMenu.SetActive(false);
+
+                LayoutRebuilder.ForceRebuildLayoutImmediate(gameObject.GetComponent<RectTransform>());
+
                 if(!m_ToolingMainMenu.activeSelf)
                     m_ToolingMainMenu.SetActive(true);
+
+                ToolingMenu.SetActive(true);
 
                 currentTab = Tabs.Tooling;
             }
@@ -585,6 +711,7 @@ namespace RP0.Unity.Unity
 
             if (isOn)
             {
+                //updateAllNauts(courseStartListAstronauts);
                 CoursesMainMenu.SetActive(true);
                 if(!m_courseListMenu.activeSelf)
                     m_courseListMenu?.SetActive(true);
@@ -593,7 +720,11 @@ namespace RP0.Unity.Unity
                 currentTab = Tabs.Courses;
             }
             else
+            {
                 CoursesMainMenu.SetActive(false);
+                //updateAllNauts(courseStartListAstronauts);
+            }
+                
         }
         public void AvionicsTabToggle(bool isOn)
         {
@@ -615,6 +746,11 @@ namespace RP0.Unity.Unity
         public void onAstronautDetailLeaveButton()
         {
             selectedAstronaut.onLeaveButtonPressed();
+        }
+
+        public void onToolAllButton()
+        {
+            mainPanelInterface.toolAllParts();
         }
 
         #endregion

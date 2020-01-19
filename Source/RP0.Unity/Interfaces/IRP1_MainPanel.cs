@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using RP0.Unity.Unity;
 using UnityEngine;
 using UnityEngineInternal;
 
@@ -35,9 +36,7 @@ namespace RP0.Unity.Interfaces
 
         double LaunchPadTotalCost { get; }
 
-        string[] LaunchPadLevels { get; }
-
-        double[] LauchPadLevelsCost { get; }
+        RP1_Maintenance.padLevelsAndCosts[] LaunchPadLevelsAndCosts { get; }
 
         double RunwayTotalCost { get; }
 
@@ -81,6 +80,17 @@ namespace RP0.Unity.Interfaces
 
         string newActiveCourseEndTime { get; }
 
+        int addedCrewCount { get; }
+
+        //Tooling
+        float allTooledCost { get; }
+
+        IList<string> getExistingToolingList { get; }
+
+        //string[] getSelectedToolingParams(string toolingToGet);
+
+        void toolAllParts();
+
 
         float Scale { get; set; }
 
@@ -91,6 +101,8 @@ namespace RP0.Unity.Interfaces
         IList<IRP1_Astronaut> getAstronauts { get; }
 
         IList<IRP1_Course> getCourseButtons { get; }
+
+        IList<IRP1_Tooling> getUntooledParts { get; }
 
         void SetWindowPosition(Rect r);
 

@@ -9,7 +9,9 @@ namespace RP0.Unity.Interfaces
     {
         bool isInCourse { get; }
 
-        string name { get; }
+        bool meetsCourseReqs { get; }
+
+        string crewMemberName { get; }
 
         string type { get; }
 

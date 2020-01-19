@@ -16,6 +16,7 @@ namespace RP0.UI
         private static GameObject _windowPrefab;
         private static GameObject _astronautListRowPrefab;
         private static GameObject _courseSelectButtonPrefab;
+        private static GameObject _toolingListRowPrefab;
         private static GameObject[] loadedPrefabs;
 
         private static string path;
@@ -38,6 +39,11 @@ namespace RP0.UI
         public static GameObject AstronautListRowPrefab
         {
             get { return _astronautListRowPrefab; }
+        }
+
+        public static GameObject ToolingListRowPrefab
+        {
+            get { return _toolingListRowPrefab; }
         }
 
         private void Awake()
@@ -101,6 +107,9 @@ namespace RP0.UI
 
                 if (o.name == "CourseSelectButtonPrefab")
                     _courseSelectButtonPrefab = o;
+
+                if (o.name == "ToolingScrollListItem")
+                    _toolingListRowPrefab = o;
             }
 
             prefabsProcessed = true;

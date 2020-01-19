@@ -9,13 +9,17 @@ using UnityEngine;
 
 namespace RP0.UI
 {
-    public class GUICourseTemplate : MonoBehaviour, IRP1_Course
+    public class GUICourseTemplate : IRP1_Course
     {
         private CourseTemplate courseTemplate;
+        public CourseTemplate CourseTemplate
+        {
+            get => courseTemplate;
+        }
 
         private TopWindow topWindow;
 
-        public string name
+        public string courseName
         {
             get => courseTemplate.name;
         }
@@ -30,18 +34,6 @@ namespace RP0.UI
             get => courseTemplate.isTemporary;
         }
 
-        //public string getDuration
-        //{
-        //    get
-        //    {
-        //    }
-        //}
-
-        //public string getCompleteTime
-        //{
-        //    get => 
-        //}
-
         public int seatMax
         {
             get => courseTemplate.seatMax;
@@ -52,13 +44,14 @@ namespace RP0.UI
             get => courseTemplate.seatMin;
         }
 
-        public List<GUICrewMember> students = new List<GUICrewMember>();
-        public IList<IRP1_Astronaut> getStudents
+        public static bool operator == (GUICourseTemplate template1, GUICourseTemplate template2)
         {
-            get
-            {
-                return new List<IRP1_Astronaut>(students.ToArray());
-            }
+            return template1.courseTemplate == template2.courseTemplate;
+        }
+
+        public static bool operator != (GUICourseTemplate template1, GUICourseTemplate template2)
+        {
+            return template1.courseTemplate != template2.courseTemplate;
         }
 
         public GUICourseTemplate(CourseTemplate pTemplate, TopWindow pTopWindow)
@@ -70,27 +63,6 @@ namespace RP0.UI
         public void prepareCourse()
         {
             topWindow.prepareNewCourse(courseTemplate);
-        }
-
-        public void StartCourse()
-        {
-            if (courseTemplate != null)
-            {
-                ActiveCourse courseToAdd = new ActiveCourse(courseTemplate);
-
-                List<ProtoCrewMember> studentsToAdd = new List<ProtoCrewMember>();
-                foreach (var guiCrewMember in students)
-                {
-                    studentsToAdd.Add(guiCrewMember.self);
-                }
-
-                courseToAdd.Students = studentsToAdd;
-
-                if(studentsToAdd.Count > 0)
-                    CrewHandler.Instance.ActiveCourses.Add(courseToAdd);
-            }
-            
-            MaintenanceHandler.Instance.UpdateUpkeep();
         }
     }
 }

@@ -7,6 +7,7 @@ using RP0.Crew;
 using RP0.UI;
 using RP0.Unity.Interfaces;
 using RP0.Unity.Unity;
+using Smooth.Slinq;
 
 namespace RP0
 {
@@ -109,27 +110,18 @@ namespace RP0
             } 
         }
 
-        #region AstronautFields
-
-        private List<IRP1_Astronaut> crewMembers = new List<IRP1_Astronaut>();
-
-        private List<IRP1_Course> courses = new List<IRP1_Course>();
-
-        public IList<IRP1_Astronaut> getAstronauts
+        public int addedCrewCount
         {
-            get { return crewMembers; }
+            get
+            {
+                if (newCourse != null)
+                    return newCourse.Students.Count;
+                else
+                    return -1;
+            } 
         }
 
-        public IList<IRP1_Course> getCourses
-        {
-            get{ return new List<IRP1_Course>(courses.ToArray());}
-        }
-
-        private Dictionary<ProtoCrewMember, ActiveCourse> activeMap = new Dictionary<ProtoCrewMember, ActiveCourse>(); 
-
-        #endregion
-
-        #region MaintenanceFields
+        #region Maintenance Properties
 
         #region Main maintenance
 
@@ -168,27 +160,18 @@ namespace RP0
             
         }
 
-        public string[] LaunchPadLevels
+        public RP1_Maintenance.padLevelsAndCosts[] LaunchPadLevelsAndCosts
         {
             get
             {
-                string[] toReturn = new string[1];
-                for (int i = 0; i < toReturn.Length; i++)
+                RP1_Maintenance.padLevelsAndCosts[] toReturn = new RP1_Maintenance.padLevelsAndCosts[MaintenanceHandler.padLevels];
+                for (int i = 0; i < MaintenanceHandler.padLevels; i++)
                 {
-                    if (MaintenanceHandler.Instance.padCosts[i] == 0d)
-                        continue;
-                    toReturn[i] = String.Format("Level {0} × {1}", i + 1, MaintenanceHandler.Instance.kctPadCounts[i]);
+                    toReturn[i] = new RP1_Maintenance.padLevelsAndCosts(i + 1,
+                        MaintenanceHandler.Instance.kctPadCounts[i], MaintenanceHandler.Instance.padCosts[i]);
                 }
 
                 return toReturn;
-            }
-        }
-
-        public double[] LauchPadLevelsCost
-        {
-            get
-            {
-                return MaintenanceHandler.Instance.padCosts;
             }
         }
 
@@ -296,9 +279,22 @@ namespace RP0
 
         #endregion
 
+        #region Astronaut Fields
+
+        private List<IRP1_Astronaut> crewMembers = new List<IRP1_Astronaut>();
+
+        public IList<IRP1_Astronaut> getAstronauts
+        {
+            get { return crewMembers; }
+        }
+
+        private Dictionary<ProtoCrewMember, ActiveCourse> activeMap = new Dictionary<ProtoCrewMember, ActiveCourse>(); 
+
+        #endregion
+
         #region Courses Fields
 
-        private List<IRP1_Course> coursesList = new List<IRP1_Course>();
+        private List<GUICourseTemplate> coursesList = new List<GUICourseTemplate>();
 
         public IList<IRP1_Course> getCourseButtons
         {
@@ -306,6 +302,57 @@ namespace RP0
         }
 
         private ActiveCourse newCourse = null;
+
+        #endregion
+
+        #region Tooling Fields
+
+        private List<IRP1_Tooling> untooledPartsList = new List<IRP1_Tooling>();
+
+        public IList<IRP1_Tooling> getUntooledParts
+        {
+            get => untooledPartsList;
+        }
+
+
+        private struct untooledPart : IRP1_Tooling
+        {
+            public string name;
+            public float toolingCost;
+            public float untooledMultiplier;
+            public float totalCost;
+
+            public string partName
+            {
+                get => name;
+            }
+
+            public float partToolingCost
+            {
+                get => toolingCost;
+            }
+
+            public float partTooledCost
+            {
+                get => totalCost;
+            }
+
+            public float partUntooledCost
+            {
+                get => totalCost - GetUntooledExtraCost(this);
+            }
+        }
+
+        private float _allTooledCost;
+        public float allTooledCost
+        {
+            get => _allTooledCost;
+        }
+
+        public IList<string> getExistingToolingList
+        {
+            get => new List<string>(ToolingDatabase.toolings.Keys); 
+        }
 
         #endregion
 
@@ -325,7 +372,7 @@ namespace RP0
             GameEvents.onGameSceneSwitchRequested.Add(OnSceneChange);
         }
 
-        private void start()
+        private void Start()
         {
            
         }
@@ -436,10 +483,8 @@ namespace RP0
 
             generateAstronautList();
 
-            generateCoursTemplateList();
+            generateCourseTemplateList();
 
-            //UIWindow.CreateNauts(crewMembers);
-            
             windowGenerating = true;
 
             UIWindow = Instantiate(RP1Loader.WindowPrefab, DialogCanvasUtil.DialogCanvasRect, false).GetComponent<RP1_MainPanel>();
@@ -508,36 +553,54 @@ namespace RP0
 
         void workerMethodCourses()
         {
-            UIWindow.updateAllNauts(UIWindow.astronauts);
-            UIWindow.updateAllNauts(UIWindow.courseStartListAstronauts);
+            updateAstronautList();
+
+            updateUntooledParts();
+            UIWindow.updateToolingMainMenu(untooledPartsList);
+            //UIWindow.updateMaintenanceWindow();
         }
 
         #endregion
 
         #region Astronaut Methods
 
-        //TODO make the course list update every 2 seconds or so
-
         public void generateAstronautList()
         {
             updateActiveMap();
 
+            if(crewMembers.Count != 0)
+                crewMembers.Clear();
+
             foreach (ProtoCrewMember pcm in HighLogic.CurrentGame.CrewRoster.Crew)
             {
-                string courseName, completeTime, retireTime;
-
                 ActiveCourse pcmActiveCourse = null;
 
-                generateAstronautValues(pcm, out courseName, out completeTime, out retireTime, out pcmActiveCourse);
+                if (activeMap.ContainsKey(pcm))
+                    pcmActiveCourse = activeMap[pcm];
 
-                GUICrewMember member = new GUICrewMember(pcm.name, pcm.trait, pcm.experienceLevel, retireTime, pcm, pcmActiveCourse, this);
-
-                member.courseName = courseName;
-                member.completeTime = completeTime;
-                member.retireTime = retireTime;
+                GUICrewMember member = new GUICrewMember(pcm, pcmActiveCourse, this);
 
                 crewMembers.Add(member);
             }
+        }
+
+        public void updateAstronautList()
+        {
+            updateActiveMap();
+
+            if(crewMembers.Count == 0)
+                return;
+
+            foreach (GUICrewMember naut in crewMembers)
+            {
+                naut.course = null;
+
+                if (activeMap.ContainsKey(naut.self))
+                    naut.course = activeMap[naut.self];
+            }
+
+            //UIWindow.updateAllNauts(UIWindow.astronauts);
+            //UIWindow.updateAllNauts(UIWindow.courseStartListAstronauts);
         }
 
         private void updateActiveMap()
@@ -550,52 +613,12 @@ namespace RP0
             }
         }
 
-        void generateAstronautValues(ProtoCrewMember pcm, out string courseName, out string completeTime, out string retireTime, out ActiveCourse currentCourse)
-        {
-            if (CrewHandler.Instance.kerbalRetireTimes.ContainsKey(pcm.name))
-            {
-                retireTime = CrewHandler.Instance.retirementEnabled ? KSPUtil.PrintDate(CrewHandler.Instance.kerbalRetireTimes[pcm.name], false) : "(n/a)";
-            }
-            else
-            {
-                retireTime = "(unknown)";
-            }
-
-            currentCourse = null;
-
-            if (activeMap.ContainsKey(pcm))
-                currentCourse = activeMap[pcm];
-
-            if (currentCourse == null)
-            {
-                if (pcm.rosterStatus == ProtoCrewMember.RosterStatus.Assigned)
-                {
-                    courseName = "(in-flight)";
-                    completeTime = KSPUtil.PrintDate(pcm.inactiveTimeEnd, false);
-                }
-                else if (pcm.inactive)
-                {
-                    courseName = "(inactive)";
-                    completeTime = KSPUtil.PrintDate(pcm.inactiveTimeEnd, false);
-                }
-                else
-                {
-                    courseName = "(free)";
-                    completeTime = "(n/a)";
-                }
-            }
-            else
-            {
-                courseName = currentCourse.name;
-                completeTime = KSPUtil.PrintDate(currentCourse.CompletionTime(), false);
-            }
-        }
-
         #endregion
 
         #region Courses Methods
 
-        public void generateCoursTemplateList()
+        //TODO: Update the courses List periodically
+        public void generateCourseTemplateList()
         {
             foreach (CourseTemplate course in CrewHandler.Instance.OfferedCourses) 
             {
@@ -607,28 +630,134 @@ namespace RP0
         public void prepareNewCourse(CourseTemplate template)
         {
             newCourse = new ActiveCourse(template);
+            Debug.Log("[RP-1] New course prepared " + newCourse.name);
         }
 
         public void addCrewToNewCourse(ProtoCrewMember toAdd)
         {
-            newCourse?.Students.Add(toAdd);
+            newCourse?.AddStudent(toAdd);
         }
 
         public void removeCrewFromNewCourse(ProtoCrewMember toRemove)
         {
-            newCourse?.Students.Remove(toRemove);
+            newCourse?.RemoveStudent(toRemove);
         }
 
         public void startNewCourse()
         {
-            CrewHandler.Instance.ActiveCourses.Add(newCourse);
-            newCourse.Students.Clear();
-            MaintenanceHandler.Instance.UpdateUpkeep();
-            UIWindow.updateCourseStartPanel();
+            if (newCourse.Students.Count > 0)
+            {
+                if(newCourse.StartCourse())
+                {
+                    //Debug stuff
+                    foreach (ProtoCrewMember pcm in newCourse.Students)
+                    {
+                        Debug.Log("[RP-1] " + pcm.name + " Added to course " + newCourse.name);
+                    }
+
+                    if(newCourse.Students.Count == 0)
+                        return;
+
+                    CrewHandler.Instance.ActiveCourses.Add(newCourse);
+                    CourseTemplate temporaryTemplate = newCourse;
+                    newCourse = new ActiveCourse(temporaryTemplate);
+                    MaintenanceHandler.Instance.UpdateUpkeep();
+                    updateAstronautList();
+                    UIWindow.updateCourseStartPanel();
+                }
+            }
+        }
+
+        public bool doesStudentMeetCourseReqs(ProtoCrewMember pcm)
+        {
+            if (newCourse == null)
+                return false;
+            
+
+            return newCourse.MeetsStudentReqs(pcm);;
         }
 
         #endregion
 
+        #region Tooling Methods
+
+        public void updateUntooledParts()
+        {
+            if(!HighLogic.LoadedSceneIsEditor)
+                return;
+
+            untooledPartsList.Clear();
+            float totalUntooledExtraCost = 0;
+
+            if (EditorLogic.fetch != null && EditorLogic.fetch.ship != null && EditorLogic.fetch.ship.Parts.Count > 0) {
+                for (int i = EditorLogic.fetch.ship.Parts.Count; i-- > 0;) {
+                    Part p = EditorLogic.fetch.ship.Parts[i];
+                    for (int j = p.Modules.Count; j-- > 0;) {
+                        if (p.Modules[j] is ModuleTooling mT && !mT.IsUnlocked()) {
+                            untooledPart uP;
+                            uP.name = $"{p.partInfo.title} ({mT.ToolingType}) {mT.GetToolingParameterInfo()}";
+                            uP.toolingCost = mT.GetToolingCost();
+                            uP.untooledMultiplier = mT.untooledMultiplier;
+                            uP.totalCost = p.GetModuleCosts(p.partInfo.cost) + p.partInfo.cost;
+                            totalUntooledExtraCost += GetUntooledExtraCost(uP);
+                            untooledPartsList.Add(uP);
+                        }
+                    }
+                }
+            }
+
+            _allTooledCost = EditorLogic.fetch.ship.GetShipCosts(out _, out _) - totalUntooledExtraCost;
+        }
+
+        private static float GetUntooledExtraCost(untooledPart uP)
+        {
+            return uP.toolingCost * uP.untooledMultiplier;
+        }
+
+        public void toolAllParts()
+        { 
+            var untooledParts = EditorLogic.fetch.ship.Parts.Slinq().SelectMany(p => p.FindModulesImplementing<ModuleTooling>().Slinq())
+                                                                            .Where(mt => !mt.IsUnlocked())
+                                                                            .ToList();
+
+            float totalToolingCost = ModuleTooling.PurchaseToolingBatch(untooledParts, isSimulation: true);
+            bool canAfford = Funding.Instance.Funds >= totalToolingCost;
+            PopupDialog.SpawnPopupDialog(new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                new MultiOptionDialog(
+                    "ConfirmAllToolingsPurchase",
+                    $"Tooling for all untooled parts will cost {totalToolingCost:N0} funds.",
+                    "Tooling Purchase",
+                    HighLogic.UISkin,
+                    new Rect(0.5f, 0.5f, 150f, 60f),
+                    new DialogGUIFlexibleSpace(),
+                    new DialogGUIVerticalLayout(
+                        new DialogGUIFlexibleSpace(),
+                        new DialogGUIButton(canAfford ? "Purchase All Toolings" : "Can't Afford",
+                            () =>
+                            {
+                                if (canAfford)
+                                {
+                                    ModuleTooling.PurchaseToolingBatch(untooledParts);
+                                    untooledParts.ForEach(mt =>
+                                    {
+                                        mt.Events["ToolingEvent"].guiActiveEditor = false;
+                                    });
+                                    GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
+                                }
+                            }, 140.0f, 30.0f, true),
+                        new DialogGUIButton("Close", () => { }, 140.0f, 30.0f, true)
+                        )),
+                false,
+                HighLogic.UISkin);
+        }
+
+        public void updateExistingToolings()
+        {
+
+        }
+
+        #endregion
     }
 }
 

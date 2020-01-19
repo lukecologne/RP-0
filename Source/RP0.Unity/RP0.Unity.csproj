@@ -45,11 +45,14 @@
     <Compile Include="Interfaces\IRP1_Astronaut.cs" />
     <Compile Include="Interfaces\IRP1_Course.cs" />
     <Compile Include="Interfaces\IRP1_MainPanel.cs" />
+    <Compile Include="Interfaces\IRP1_Tooling.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Unity\RP1_Course.cs" />
+    <Compile Include="Unity\RP1_ExistingToolingButton.cs" />
     <Compile Include="Unity\RP1_MainPanel.cs" />
     <Compile Include="Unity\RP1_Astronaut.cs" />
     <Compile Include="Unity\RP1_Maintenance.cs" />
+    <Compile Include="Unity\RP1_ToolingListItem.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
