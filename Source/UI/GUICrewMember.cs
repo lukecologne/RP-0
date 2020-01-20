@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 using System.Text;
+using RP0.Crew;
 using RP0.UI;
 using RP0.Unity.Interfaces;
 using UnityEngine;
 
-namespace RP0.Crew
+namespace RP0.UI
 {
     public class GUICrewMember : IRP1_Astronaut
     {

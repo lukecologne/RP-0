@@ -4,7 +4,7 @@ using UnityEngine;
 using KSP.UI.Screens;
 using RP0.UI;
 
-namespace RP0
+namespace RP0.UI
 {
     [KSPAddon(KSPAddon.Startup.FlightEditorAndKSC, false)]
     class RP1ToolbarHolder : MonoBehaviour

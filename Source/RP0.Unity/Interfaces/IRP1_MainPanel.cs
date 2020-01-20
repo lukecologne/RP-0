@@ -87,7 +87,7 @@ namespace RP0.Unity.Interfaces
 
         IList<string> getExistingToolingList { get; }
 
-        //string[] getSelectedToolingParams(string toolingToGet);
+        List<string[]> DisplayTypeTab(string currentToolingType);
 
         void toolAllParts();
 

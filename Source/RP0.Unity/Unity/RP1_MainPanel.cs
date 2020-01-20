@@ -106,6 +106,8 @@ namespace RP0.Unity.Unity
         [SerializeField]
         private GameObject m_ExistingToolingSizeRowPrefab;
         [SerializeField]
+        private Text m_ExistingToolingSizeTextPrefab;
+        [SerializeField]
         private Text m_TooledTotalVesselCost;
         [SerializeField]
         private Transform m_ToolingListScrollViewContent;
@@ -180,6 +182,8 @@ namespace RP0.Unity.Unity
 
         List<GameObject> ExistingToolingRows = new List<GameObject>();
 
+        List<GameObject> ExistingToolingSizesRows = new List<GameObject>();
+
         private string selectedExistingToolingType = null;
 
         #endregion
@@ -200,6 +204,7 @@ namespace RP0.Unity.Unity
         {
             InvokeRepeating(nameof(updateCourseStartPanel),0,0.1f);
             InvokeRepeating(nameof(updateAstronautDetailPanel),0,0.1f);
+            InvokeRepeating(nameof(updateToolingTypesMenu),0, 1f);
         }
 
         public void Open()
@@ -530,7 +535,42 @@ namespace RP0.Unity.Unity
 
         public void updateToolingTypesMenu()
         {
+            if(String.IsNullOrEmpty(selectedExistingToolingType))
+                return;
+
             m_ExistingToolingTypeNameText.text = $"Toolings for type {selectedExistingToolingType}";
+
+            if (ExistingToolingSizesRows.Count > 0)
+            {
+                foreach (var go in ExistingToolingSizesRows)
+                {
+                    Destroy(go);
+                }
+            }
+
+            List<string[]> toolingSizes = mainPanelInterface.DisplayTypeTab(selectedExistingToolingType);
+
+            foreach (var row in toolingSizes)
+            {
+                if(row.Length == 0)
+                    continue;
+
+                GameObject rowToAdd = Instantiate(m_ExistingToolingSizeRowPrefab, m_ToolingTypesMenu.transform);
+                ExistingToolingSizesRows.Add(rowToAdd);
+                Text firstToAdd = Instantiate(m_ExistingToolingSizeTextPrefab, rowToAdd.transform);
+                firstToAdd.text = row[0];
+
+                if(row.Length == 1)
+                    continue;
+
+                for (int i = 1; i < row.Length; i++)
+                {
+                    Text divider = Instantiate(m_ExistingToolingSizeTextPrefab, rowToAdd.transform);
+                    divider.text = "x";
+                    Text textToAdd = Instantiate(m_ExistingToolingSizeTextPrefab, rowToAdd.transform);
+                    textToAdd.text = row[i];
+                }
+            }
         }
 
         public void createToolingRowItem(IRP1_Tooling module)

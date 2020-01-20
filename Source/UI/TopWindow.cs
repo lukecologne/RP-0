@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using RP0.Crew;
-using RP0.UI;
+using RP0.Tooling;
 using RP0.Unity.Interfaces;
 using RP0.Unity.Unity;
 using Smooth.Slinq;
 
-namespace RP0
+namespace RP0.UI
 {
     [KSPAddon(KSPAddon.Startup.FlightEditorAndKSC, false)]
     public class TopWindow : MonoBehaviour, IRP1_MainPanel
@@ -752,9 +752,59 @@ namespace RP0
                 HighLogic.UISkin);
         }
 
-        public void updateExistingToolings()
-        {
 
+        private string[] GetTypeHeadings(Parameter[] parameters)
+        {
+            string[] toReturn = new string[parameters.Length];
+
+            toReturn[0] = parameters[0].Title;
+            for (int i = 1; i < parameters.Length; ++i)
+            {
+                toReturn[i] = parameters[i].Title;
+            }
+
+            return toReturn;
+        }
+
+        private string[] DisplayRow(float[] values, Parameter[] parameters)
+        {
+            string[] toReturn = new string[values.Length];
+
+            toReturn[0] = $"{values[0]:F3} {parameters[0].Unit}";
+            for (int i = 1; i < values.Length; ++i)
+            {
+                toReturn[i] = $"{values[i]:F3} {parameters[i].Unit}";
+            }
+
+            return toReturn;
+        }
+
+        public List<string[]> DisplayTypeTab(string currentToolingType)
+        {
+            List<string[]> toReturn = new List<string[]>();
+            var parameters = Parameters.GetParametersForToolingType(currentToolingType);
+            toReturn.Add(GetTypeHeadings(parameters));
+            
+            var entries = ToolingDatabase.toolings[currentToolingType];
+            var values = new float[parameters.Length];
+            DisplayRows(entries, 0, values, parameters, toReturn);
+
+            return toReturn;
+        }
+
+        private void DisplayRows(List<ToolingEntry> entries, int parameterIndex, float[] values, Parameter[] parameters, List<string[]> toReturn)
+        {
+            if(parameterIndex == parameters.Length)
+            {
+                toReturn.Add(DisplayRow(values, parameters));
+                return;
+            }
+
+            foreach (var toolingEntry in entries)
+            {
+                values[parameterIndex] = toolingEntry.Value;
+                DisplayRows(toolingEntry.Children, parameterIndex + 1, values, parameters, toReturn);
+            }
         }
 
         #endregion

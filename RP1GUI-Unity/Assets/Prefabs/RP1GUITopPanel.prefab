@@ -6213,6 +6213,8 @@ MonoBehaviour:
     type: 2}
   m_ExistingToolingSizeRowPrefab: {fileID: 1399849692860712, guid: a4c70e70073fa3a48a34cb3464b45c9c,
     type: 2}
+  m_ExistingToolingSizeTextPrefab: {fileID: 114682387300962612, guid: bed4b37b5126b83408e108aa500deff1,
+    type: 2}
   m_TooledTotalVesselCost: {fileID: 114355418932217556}
   m_ToolingListScrollViewContent: {fileID: 224269412824591156}
   ToolingMenu: {fileID: 1173541657312644}
