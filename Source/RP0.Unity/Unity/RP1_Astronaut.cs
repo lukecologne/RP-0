@@ -73,6 +73,11 @@ namespace RP0.Unity.Unity
             mainPanel = pMainPanel;
 
             isInCourseStartList = pisInCourseStartList;
+            if (!isInCourseStartList)
+            {
+                m_AstronautNameText.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 160);
+                m_AstronautNameText.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 0f);
+            }
 
             UpdateTextFields();
         }

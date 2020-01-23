@@ -125,6 +125,7 @@ GameObject:
   - component: {fileID: 222004138825696824}
   - component: {fileID: 114934402325142720}
   - component: {fileID: 114451053667139458}
+  - component: {fileID: 114519577661666900}
   m_Layer: 5
   m_Name: AstronautButton
   m_TagString: Untagged
@@ -160,6 +161,7 @@ GameObject:
   - component: {fileID: 222404074197110288}
   - component: {fileID: 114650298553708428}
   - component: {fileID: 114750557021251780}
+  - component: {fileID: 114745869879936650}
   m_Layer: 5
   m_Name: CourseLeaveButton
   m_TagString: Untagged
@@ -338,7 +340,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 2
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -406,6 +408,18 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u2713"
+--- !u!114 &114519577661666900
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1535606688820610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 720479263, guid: e8443911e682f554d8a5854bd1988506, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ElementType: 3
 --- !u!114 &114636407583583834
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -501,6 +515,18 @@ MonoBehaviour:
   m_Text: 'T
 
     L'
+--- !u!114 &114745869879936650
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1860979093029806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 720479263, guid: e8443911e682f554d8a5854bd1988506, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ElementType: 3
 --- !u!114 &114750557021251780
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -518,7 +544,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 2
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}

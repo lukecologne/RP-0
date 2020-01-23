@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using RP0.Unity.Styles;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace RP0.UI
 {
@@ -99,6 +101,8 @@ namespace RP0.UI
                 if (o == null)
                     continue;
 
+                processUIComponent(o);
+
                 if (o.name == "RP1GUITopPanel")
                     _windowPrefab = o;
 
@@ -113,6 +117,51 @@ namespace RP0.UI
             }
 
             prefabsProcessed = true;
+        }
+
+        private void processUIComponent(GameObject o)
+        {
+            RP1_GUIStyles[] styles = o.GetComponentsInChildren<RP1_GUIStyles>(true);
+
+            if(styles == null)
+                return;
+
+            for (int i = 0; i < styles.Length; i++)
+            {
+                processComponent(styles[i]);
+            }
+        }
+
+        private void processComponent(RP1_GUIStyles style)
+        {
+            if (style == null)
+                return;
+
+            UISkinDef skin = UISkinManager.defaultSkin;
+
+            if (skin == null)
+                return;
+
+            switch (style.ElementType)
+            {
+                case RP1_GUIStyles.ElementTypes.Window: 
+                    style.setImage(skin.window.normal.background, Image.Type.Sliced);
+                    break;
+
+                case RP1_GUIStyles.ElementTypes.Box:
+                    style.setImage(skin.box.normal.background, Image.Type.Sliced);
+                    break;
+
+                case RP1_GUIStyles.ElementTypes.Button:
+                    style.setButton(skin.button.normal.background, skin.button.highlight.background, skin.button.active.background, skin.button.disabled.background);
+                    break;
+
+                case RP1_GUIStyles.ElementTypes.Toggle:
+                    style.setToggle(skin.button.normal.background, skin.button.highlight.background, skin.button.active.background, skin.button.disabled.background);
+                    break;
+                default:
+                        break;
+            }
         }
     }
 }
