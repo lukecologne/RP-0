@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace RP0.Unity.Interfaces
+﻿namespace RP0.Unity.Interfaces
 {
     public interface IRP1_Astronaut
     {
@@ -28,6 +23,8 @@ namespace RP0.Unity.Interfaces
         //IRP1_Course getCurrentCourse { get; }
 
         void onLeaveButtonPressed();
+
+        void onKACButtonPressed();
 
         void addSelfToNewCourse();
 

@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
+using System.Reflection;
+using KSP.UI;
 using UnityEngine;
 using RP0.Crew;
 using RP0.Tooling;
 using RP0.Unity.Interfaces;
 using RP0.Unity.Unity;
 using Smooth.Slinq;
+using Debug = UnityEngine.Debug;
 
 namespace RP0.UI
 {
@@ -59,6 +62,11 @@ namespace RP0.UI
             }
         }
 
+        public bool KACAPIReady
+        {
+            get => KACWrapper.APIReady;
+        }
+
         public bool PixelPerfect
         {
             get { return true; }
@@ -85,7 +93,7 @@ namespace RP0.UI
 
         public string Version
         {
-            get { return "v1.2.1"; }
+            get => FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
         }
 
         public string newActiveCourseDuration
@@ -487,7 +495,7 @@ namespace RP0.UI
 
             windowGenerating = true;
 
-            UIWindow = Instantiate(RP1Loader.WindowPrefab, DialogCanvasUtil.DialogCanvasRect, false).GetComponent<RP1_MainPanel>();
+            UIWindow = Instantiate(RP1Loader.WindowPrefab, UIMasterController.Instance.dialogCanvas.transform, false).GetComponent<RP1_MainPanel>();
 
             yield return StartCoroutine(UIWindow.setWindow(this));
 

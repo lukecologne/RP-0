@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using RP0.Unity.Interfaces;
+﻿using RP0.Unity.Interfaces;
 using UnityEngine;
 using UnityEngine.UI;
 

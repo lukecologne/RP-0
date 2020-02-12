@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using KSP.UI.Screens;
-using RP0.UI;
 
 namespace RP0.UI
 {

@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security;
-using System.Text;
 using RP0.Crew;
-using RP0.UI;
 using RP0.Unity.Interfaces;
 using UnityEngine;
 
@@ -175,6 +170,20 @@ namespace RP0.UI
                     false,
                     HighLogic.UISkin);
             }
+        }
+
+        public void onKACButtonPressed()
+        {
+            if(course == null)
+                return;
+            // CrewHandler processes trainings every 3600 seconds. Need to account for that to set up accurate KAC alarms.
+            // Copy of the old KAC setup
+            double completeUT = course.CompletionTime();
+            double timeDiff = completeUT - CrewHandler.Instance.nextUpdate;
+            double timesChRun = Math.Ceiling(timeDiff / CrewHandler.Instance.updateInterval);
+            double alarmUT = CrewHandler.Instance.nextUpdate + timesChRun * CrewHandler.Instance.updateInterval;
+            string alarmTxt = $"{course.name} - {self.name}";
+            KACWrapper.KAC.CreateAlarm(KACWrapper.KACAPI.AlarmTypeEnum.Crew, alarmTxt, alarmUT);
         }
     }
 }

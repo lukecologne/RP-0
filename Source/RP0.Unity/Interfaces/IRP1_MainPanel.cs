@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using RP0.Unity.Unity;
 using UnityEngine;
-using UnityEngineInternal;
 
 namespace RP0.Unity.Interfaces
 {
@@ -15,6 +11,8 @@ namespace RP0.Unity.Interfaces
         bool PixelPerfect { get; set; }
 
         bool isCareerMode { get; }
+
+        bool KACAPIReady { get; }
 
         int currentScene { get; }
 

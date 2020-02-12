@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using RP0.Unity.Styles;
 using UnityEngine;
 using UnityEngine.UI;
@@ -101,7 +98,8 @@ namespace RP0.UI
                 if (o == null)
                     continue;
 
-                processUIComponent(o);
+                //somehow there isn't a disabled sprite for buttons, but we require it, so needs a fix
+                //processUIComponent(o);
 
                 if (o.name == "RP1GUITopPanel")
                     _windowPrefab = o;

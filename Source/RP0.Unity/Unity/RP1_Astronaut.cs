@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using RP0.Unity.Interfaces;
+﻿using RP0.Unity.Interfaces;
 using UnityEngine.UI;
 using UnityEngine;
 
@@ -29,6 +26,8 @@ namespace RP0.Unity.Unity
         private Button m_CourseLeaveButton;
         [SerializeField]
         private Text m_isAddedCheckmark;
+        [SerializeField]
+        private Button m_KACAddButton;
 #pragma warning restore 649
 
         private RP1_MainPanel mainPanel;
@@ -79,6 +78,13 @@ namespace RP0.Unity.Unity
                 m_AstronautNameText.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 0f);
             }
 
+            if (isInCourseStartList || !mainPanel.MainPanelInterface.KACAPIReady)
+            {
+                m_KACAddButton.gameObject.SetActive(false);
+                m_CourseLeaveButton.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 25);
+                m_CourseLeaveButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(-32f, 0f);
+            }
+
             UpdateTextFields();
         }
 
@@ -116,17 +122,26 @@ namespace RP0.Unity.Unity
                 m_AstronautRetireTime.text = AstronautInterface.retireTime;
 
             if (AstronautInterface.isInCourse == false)
+            {
                 m_CourseLeaveButton.interactable = false;
+                m_KACAddButton.interactable = false;
+            }
             else
+            {
                 m_CourseLeaveButton.interactable = true;
+                m_KACAddButton.interactable = true;
+            }
         }
 
         #region Listeners
 
         public void NameButtonListener()
         {
-            if(!isInCourseStartList)
+            if (!isInCourseStartList)
+            {
+
                 mainPanel?.openAstronautDetailPanel(AstronautInterface);
+            }
             else if(isInCourseStartList && !isSelected)
             {
                 isSelected = true;
@@ -146,6 +161,11 @@ namespace RP0.Unity.Unity
         public void LeaveButtonListener()
         {
             AstronautInterface.onLeaveButtonPressed();
+        }
+
+        public void KACButtonListener()
+        {
+            AstronautInterface.onKACButtonPressed();
         }
 
         #endregion

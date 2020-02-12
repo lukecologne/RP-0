@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mime;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace RP0.Unity.Styles
@@ -75,7 +70,8 @@ namespace RP0.Unity.Styles
             select.image.type = Image.Type.Sliced;
             select.transition = Selectable.Transition.SpriteSwap;
 
-            SpriteState spriteState = select.spriteState;
+            SpriteState spriteState;
+            spriteState = select.spriteState;
             spriteState.highlightedSprite = highlightBackground;
             spriteState.pressedSprite = activeBackground;
             spriteState.disabledSprite = disabledBackground;

@@ -6,7 +6,6 @@ using RP0.Unity.Interfaces;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using UnityEngineInternal;
 
 namespace RP0.Unity.Unity
 {
@@ -353,8 +352,10 @@ namespace RP0.Unity.Unity
         {
             selectedAstronaut = switchTo;
             updateAstronautDetailPanel();
-            m_AstronautMainMenu.SetActive(false);
-            m_AstronautDetailMenu.SetActive(true);
+            if(m_AstronautMainMenu.activeSelf)
+                m_AstronautMainMenu.SetActive(false);
+            if(!m_AstronautDetailMenu.activeSelf)
+                m_AstronautDetailMenu.SetActive(true);
         }
 
         public void updateAstronautDetailPanel()
@@ -701,12 +702,12 @@ namespace RP0.Unity.Unity
                 if(m_ToolingTypesMenu.activeSelf)
                     m_ToolingTypesMenu.SetActive(false);
 
-                LayoutRebuilder.ForceRebuildLayoutImmediate(gameObject.GetComponent<RectTransform>());
-
                 if(!m_ToolingMainMenu.activeSelf)
                     m_ToolingMainMenu.SetActive(true);
 
                 ToolingMenu.SetActive(true);
+
+                LayoutRebuilder.ForceRebuildLayoutImmediate(gameObject.GetComponent<RectTransform>());
 
                 currentTab = Tabs.Tooling;
             }
