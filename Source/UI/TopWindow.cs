@@ -62,6 +62,16 @@ namespace RP0.UI
             }
         }
 
+        public bool astronautTrainingEnabled
+        {
+            get => HighLogic.CurrentGame.Parameters.CustomParams<RP0Settings>().IsTrainingEnabled;
+        }
+
+        public bool astronautRetirementEnabled
+        {
+            get => HighLogic.CurrentGame.Parameters.CustomParams<RP0Settings>().IsRetirementEnabled;
+        }
+
         public bool KACAPIReady
         {
             get => KACWrapper.APIReady;

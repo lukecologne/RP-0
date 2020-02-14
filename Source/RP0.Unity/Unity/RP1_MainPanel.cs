@@ -269,18 +269,45 @@ namespace RP0.Unity.Unity
 
             updateAvionicsMenu(0f, 0f, false);
 
-            if (window.currentScene == 1 && m_AvionicsToggle != null && m_MaintenanceToggle != null)
+            if (!mainPanelInterface.astronautTrainingEnabled)
             {
-                m_AvionicsToggle.gameObject.SetActive(false);
-                m_MaintenanceToggle.gameObject.SetActive(true);
-                updateMaintenanceWindow();
-                Canvas.ForceUpdateCanvases();
+                m_CoursesToggle?.gameObject.SetActive(false);
+
+                if (!mainPanelInterface.astronautRetirementEnabled)
+                {
+                    m_AstronautsToggle?.gameObject.SetActive(false);
+                }
             }
-            else if (window.currentScene == 0 && m_AvionicsToggle != null && m_MaintenanceToggle != null)
+
+            if (mainPanelInterface.isCareerMode)
             {
-                m_AvionicsToggle.gameObject.SetActive(true);
-                m_MaintenanceToggle.gameObject.SetActive(false);
-                Canvas.ForceUpdateCanvases();
+                if (window.currentScene == 1)
+                {
+                    m_AvionicsToggle?.gameObject.SetActive(false);
+                    m_MaintenanceToggle?.gameObject.SetActive(true);
+                    updateMaintenanceWindow();
+                    Canvas.ForceUpdateCanvases();
+                }
+                else if (window.currentScene == 0)
+                {
+                    m_AvionicsToggle?.gameObject.SetActive(true);
+                    m_MaintenanceToggle?.gameObject.SetActive(false);
+                    Canvas.ForceUpdateCanvases();
+                }
+            }
+            else
+            {
+                m_MaintenanceToggle?.gameObject.SetActive(false);
+                m_ToolingToggle?.gameObject.SetActive(false);
+
+                if (window.currentScene == 1)
+                {
+                    m_AvionicsToggle?.gameObject.SetActive(false);
+                }
+                else if (window.currentScene == 0)
+                {
+                    m_AvionicsToggle?.gameObject.SetActive(true);
+                }
             }
 
             loaded = true;

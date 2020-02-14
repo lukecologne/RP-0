@@ -12,6 +12,10 @@ namespace RP0.Unity.Interfaces
 
         bool isCareerMode { get; }
 
+        bool astronautTrainingEnabled { get; }
+
+        bool astronautRetirementEnabled { get; }
+
         bool KACAPIReady { get; }
 
         int currentScene { get; }
