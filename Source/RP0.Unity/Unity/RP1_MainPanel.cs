@@ -650,7 +650,7 @@ namespace RP0.Unity.Unity
             if (rect == null)
                 return;
 
-            mainPanelInterface.SetWindowPosition(new Rect(rect.anchoredPosition.x, rect.anchoredPosition.y, rect.sizeDelta.x, rect.sizeDelta.y));
+            mainPanelInterface.clampWindow(rect);
         }
 
         #endregion

@@ -105,5 +105,7 @@ namespace RP0.Unity.Interfaces
         void SetWindowPosition(Rect r);
 
         void startNewCourse();
+
+        void clampWindow(RectTransform rect);
     }
 }

@@ -417,6 +417,11 @@ namespace RP0.UI
             windowPos = r;
         }
 
+        public void clampWindow(RectTransform rect)
+        {
+            UIMasterController.ClampToScreen(rect, Vector2.zero);
+        }
+
         public void SetPosition()
         {
             positionSet = true;
@@ -495,7 +500,7 @@ namespace RP0.UI
 
             windowGenerating = true;
 
-            UIWindow = Instantiate(RP1Loader.WindowPrefab, UIMasterController.Instance.dialogCanvas.transform, false).GetComponent<RP1_MainPanel>();
+            UIWindow = Instantiate(RP1Loader.WindowPrefab, UIMasterController.Instance.appCanvas.transform, false).GetComponent<RP1_MainPanel>();
 
             yield return StartCoroutine(UIWindow.setWindow(this));
 
