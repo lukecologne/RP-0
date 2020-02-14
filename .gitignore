@@ -26,6 +26,15 @@ build/
 # Enable "build/" folder in the NuGet Packages folder since NuGet packages use it for MSBuild targets
 !packages/*/build/
 
+# Unity
+/RP1GUI-Unity/[Ll]ibrary/
+/RP1GUI-Unity/[Tt]emp/
+/RP1GUI-Unity/[Oo]bj/
+/RP1GUI-Unity/[Bb]uild/
+/RP1GUI-Unity/[Bb]uilds/
+/RP1GUI-Unity/[Ll]ogs/
+/RP1GUI-Unity/[Uu]ser[Ss]ettings/
+
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
