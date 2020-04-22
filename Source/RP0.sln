@@ -38,6 +38,10 @@ Global
 		{25CFD266-ED2F-47CD-AF33-4365C8D381E5}.Debug|x64.Build.0 = Debug|x64
 		{25CFD266-ED2F-47CD-AF33-4365C8D381E5}.Release|x64.ActiveCfg = Release|x64
 		{25CFD266-ED2F-47CD-AF33-4365C8D381E5}.Release|x64.Build.0 = Release|x64
+		{8698D027-1117-4794-8499-B3298CD4E03F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8698D027-1117-4794-8499-B3298CD4E03F}.Debug|x64.Build.0 = Debug|Any CPU
+		{8698D027-1117-4794-8499-B3298CD4E03F}.Release|x64.ActiveCfg = Release|Any CPU
+		{8698D027-1117-4794-8499-B3298CD4E03F}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
