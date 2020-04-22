@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace RP0
 {
-    public class CareerLogGUI : UIBase
+    /*public class CareerLogGUI : UIBase
     {
         private string _exportStatus;
 
@@ -27,5 +27,5 @@ namespace RP0
             GUILayout.Label(_exportStatus);
             GUILayout.EndVertical();
         }
-    }
+    }*/
 }

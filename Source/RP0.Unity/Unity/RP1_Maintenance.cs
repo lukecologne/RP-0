@@ -48,7 +48,7 @@ namespace RP0.Unity.Unity
         [SerializeField]
         private Text m_MissionControlTotalCost;
         [SerializeField]
-        private Text mTrackingStationTotalCost;
+        private Text m_TrackingStationTotalCost;
         [SerializeField]
         private Text m_AstronautComplexTotalCost;
         [SerializeField]
@@ -215,8 +215,8 @@ namespace RP0.Unity.Unity
                 m_RnDTotalCost.text = (MainPanel.MainPanelInterface.RnDTotalCost * perFactor).ToString(perFormat);
             if (m_MissionControlTotalCost != null)
                 m_MissionControlTotalCost.text = (MainPanel.MainPanelInterface.MissionControlTotalCost * perFactor).ToString(perFormat);
-            if (mTrackingStationTotalCost != null)
-                mTrackingStationTotalCost.text = (MainPanel.MainPanelInterface.TrackingStationTotalCost * perFactor).ToString(perFormat);
+            if (m_TrackingStationTotalCost != null)
+                m_TrackingStationTotalCost.text = (MainPanel.MainPanelInterface.TrackingStationTotalCost * perFactor).ToString(perFormat);
             if (m_AstronautComplexTotalCost != null)
                 m_AstronautComplexTotalCost.text = (MainPanel.MainPanelInterface.AstronautComplexTotalCost * perFactor).ToString(perFormat);
             if (m_TotalFacilityCostCost != null)
